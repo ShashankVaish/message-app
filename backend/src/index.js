@@ -1,4 +1,4 @@
-import { app } from './app.js';
+import {  httpServer} from './app.js';
 import {connectDB} from './config/db.js';
 import dotenv from 'dotenv';  
 dotenv.config()// Load environment variables
@@ -7,7 +7,7 @@ dotenv.config()// Load environment variables
 const startServer = async () => {
     try {
         await connectDB();
-        app.listen(process.env.PORT, () => {
+        httpServer.listen(process.env.PORT, () => {
             console.log(`Server is running on port ${process.env.PORT}`);
         });
     } catch (error) {
