@@ -30,6 +30,16 @@ userSchema.pre("save", async function (next) {
     }
     next();
 });
-const User = mongoose.model("User", userSchema);
 
+userSchema.methods.generateAuthToken = async function () {
+    const jwt = await import("jsonwebtoken");
+    const token = jwt.default.sign({ id: this._id }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+    });
+    return token;
+}   
+
+
+const User = mongoose.model("User", userSchema);
+export {User}
 export default User;

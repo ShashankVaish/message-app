@@ -15,6 +15,11 @@ app.use(express.urlencoded({extended:true , limit:"50kb"}))
 app.use(cookieParser())
 
 
+// import studentRouter from "./routes/Student.routes.js"
+import userRouter from "./routes/User.routes.js"
+app.use("/api/v1/user",userRouter)
+
+
 const  {io,httpServer } = configureSocketIO(app)
 
 

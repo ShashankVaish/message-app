@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const connectDB = async () => {
     try {
-        const dbURI = process.env.MONGODB_URI ;
+        const dbURI = `${process.env.MONGODB_URI}/chat-app` ;
         await mongoose.connect(dbURI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
