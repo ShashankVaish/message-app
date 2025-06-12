@@ -4,6 +4,7 @@ import { createServer } from 'http';
 // import { app } from '../app.js';
 import { connectDB } from '../config/db.js';
 import dotenv from 'dotenv';
+import { messageController } from '../controllers/message.controller.js';
 dotenv.config(); // Load environment variables
 // const httpServer = createServer(app);
 
@@ -21,7 +22,7 @@ function configureSocketIO(app) {
     io.on('connection', (socket) => {
         console.log('A user connected:', socket.id);
 
-        
+        messageController(io,socket);
         socket.on('disconnect', () => {
             console.log('User disconnected:', socket.id);
         });
