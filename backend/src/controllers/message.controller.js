@@ -3,9 +3,10 @@ import { Message } from "../models/message.model.js";
 
 export function messageController(io, socket) {
   // Socket must have user info, commonly attached in middleware
-  const user = socket.user;
+  
 
   socket.on('send_message', async (data) => {
+    console.log(data)
     try {
       console.log('Received:', data);
 

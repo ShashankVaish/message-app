@@ -67,7 +67,7 @@ const loginUser = asyncAwaitHandler(async (req, res) => {
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
     }).
-    json(new apiResponse(200, {"student":userData,
+    json(new apiResponse(200, {"User":userData,
         "token": token
     }, "User logged in successfully"));
 });

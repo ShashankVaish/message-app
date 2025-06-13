@@ -21,10 +21,20 @@ function configureSocketIO(app) {
             credentials: true,
         },
     });
+    console.log("middleware loaded")
     io.use(socketAuthMiddleware)
 
     io.on('connection', (socket) => {
-     messageController(io, socket);
+        console.log('A user connected:', socket.id);
+        messageController(io, socket);
+        
+        // Handle disconnection
+        socket.on('disconnect', () => {
+            console.log('User disconnected:', socket.id);
+        });
+
+        // Initialize message controller for this socket
+     
 });
     
 

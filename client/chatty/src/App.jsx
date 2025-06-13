@@ -8,8 +8,11 @@ const getToken = () => tokenStorage;
 const setToken = (token) => { tokenStorage = token; };
 const removeToken = () => { tokenStorage = null; };
 const socket = io('http://localhost:3000', {
-  withCredentials: true, // if you're using cookies/JWT
+  auth: {
+    token: localStorage.getItem("token") // or from cookies
+  }
 });
+
 // Mock data
 const mockUsers = [
   { id: 1, name: 'Alice Johnson', email: 'alice@example.com', avatar: '👩‍💼', status: 'online' },
@@ -61,7 +64,9 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
       }
 
       const data = await response.json();
-      localStorage.setItem('token', data.token); // Store JWT token
+      console.log(data)
+      setToken(data.data.token); // Store JWT token in mock storage
+      localStorage.setItem('token', data.data.token); // Store JWT token
       onLogin(); // Notify parent component
     } catch (err) {
       setError(err.message);
@@ -693,9 +698,12 @@ const App = () => {
   };
 
   const renderView = () => {
-    if (currentView === 'chat' && !isAuthenticated) {
+    if (currentView === 'chat' && !getToken()) {
       return <Login onLogin={handleLogin} onSwitchToSignup={() => setCurrentView('signup')} />;
     }
+    // if(getToken()){
+    //   return <Chat onLogout={handleLogout} />;
+    // }
 
     switch (currentView) {
       case 'login':
