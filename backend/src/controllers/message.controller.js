@@ -1,3 +1,4 @@
+import { message } from "../models/message.model.js";
 export function messageController(io, socket) {
   // Listen for message sent by client
   socket.on('send_message', (data) => {

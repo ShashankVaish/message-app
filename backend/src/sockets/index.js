@@ -5,6 +5,7 @@ import { createServer } from 'http';
 import { connectDB } from '../config/db.js';
 import dotenv from 'dotenv';
 import { messageController } from '../controllers/message.controller.js';
+import {apiError } from '../middlewares/apiError.js';
 dotenv.config(); // Load environment variables
 // const httpServer = createServer(app);
 
@@ -21,8 +22,11 @@ function configureSocketIO(app) {
 
     io.on('connection', (socket) => {
         console.log('A user connected:', socket.id);
-
-        messageController(io,socket);
+        if(req.cookies?.token) messageController(io,socket);
+        else {
+            throw new apiError(401, "Unauthorized request");
+        }
+        
         socket.on('disconnect', () => {
             console.log('User disconnected:', socket.id);
         });
