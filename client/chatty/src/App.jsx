@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 
 // Mock token storage (replace with localStorage in real app)
 let tokenStorage = null;
-
+import io from 'socket.io-client';
 // Token helper functions
 const getToken = () => tokenStorage;
 const setToken = (token) => { tokenStorage = token; };
 const removeToken = () => { tokenStorage = null; };
-
+const socket = io('http://localhost:3000', {
+  withCredentials: true, // if you're using cookies/JWT
+});
 // Mock data
 const mockUsers = [
   { id: 1, name: 'Alice Johnson', email: 'alice@example.com', avatar: '👩‍💼', status: 'online' },
@@ -392,24 +394,8 @@ const Chat = ({ onLogout }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = () => {
-    if (newMessage.trim() && activeChat) {
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        text: newMessage,
-        sender: "me",
-        timestamp: new Date()
-      }]);
-      setNewMessage('');
-    }
-  };
+  
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
 
   const selectPrivateChat = (user) => {
     setActiveChat(user);
@@ -426,6 +412,40 @@ const Chat = ({ onLogout }) => {
       { id: 1, text: `Joined ${group.name} group chat`, sender: "system", timestamp: new Date() }
     ]);
   };
+  const handleSendMessage = () => {
+  if (!newMessage.trim() || !activeChat) return;
+
+  const messageData = {
+    text: newMessage.trim(),
+    chatId: activeChat.id,               // ID of the user or group
+    chatType: chatType,                 // 'private' or 'group'
+    timestamp: new Date().toISOString() // Optional for client display
+  };
+
+  // Emit message to server via socket
+  socket.emit('send_message', messageData);
+
+  // Optimistically add message to local state
+  setMessages(prev => [
+    ...prev,
+    {
+      id: Date.now(),
+      text: messageData.text,
+      sender: 'me',
+      timestamp: new Date()
+    }
+  ]);
+
+  setNewMessage('');
+};
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  }
+  // Handle socket message reception
 
   return (
     <div className="flex h-screen bg-gray-900">

@@ -4,8 +4,10 @@ import { createServer } from 'http';
 // import { app } from '../app.js';
 import { connectDB } from '../config/db.js';
 import dotenv from 'dotenv';
+import { socketAuthMiddleware } from '../middleware/socketAuth.js';
+
 import { messageController } from '../controllers/message.controller.js';
-import {apiError } from '../middlewares/apiError.js';
+// import {apiError } from '../middlewares/apiError.js';
 dotenv.config(); // Load environment variables
 // const httpServer = createServer(app);
 
@@ -19,20 +21,12 @@ function configureSocketIO(app) {
             credentials: true,
         },
     });
+    io.use(socketAuthMiddleware)
 
     io.on('connection', (socket) => {
-        console.log('A user connected:', socket.id);
-        if(req.cookies?.token) messageController(io,socket);
-        else {
-            throw new apiError(401, "Unauthorized request");
-        }
-        
-        socket.on('disconnect', () => {
-            console.log('User disconnected:', socket.id);
-        });
-
-        
-    });
+     messageController(io, socket);
+});
+    
 
     return {io, httpServer};
 }

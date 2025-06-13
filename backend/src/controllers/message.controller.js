@@ -1,16 +1,40 @@
-import { message } from "../models/message.model.js";
+// controllers/messageController.js
+import { Message } from "../models/message.model.js";
+
 export function messageController(io, socket) {
-  // Listen for message sent by client
-  socket.on('send_message', (data) => {
-    console.log('Received:', data);
+  // Socket must have user info, commonly attached in middleware
+  const user = socket.user;
 
-    // Optionally save to DB or process
+  socket.on('send_message', async (data) => {
+    try {
+      console.log('Received:', data);
 
-    // Broadcast to all clients
-    io.emit('new_message', {
-      id: data.id,
-      text: data.text,
-      time: new Date().toLocaleTimeString(),
-    });
+      const newMessage = new Message({
+        text: data.text,
+        chatType: data.chatType || 'private',
+        chatId: data.chatId,
+        sender: {
+          id: user._id,
+          name: user.name,
+          email: user.email
+        }
+      });
+
+      const savedMessage = await newMessage.save();
+
+      // Broadcast to all connected clients
+      io.emit('new_message', {
+        id: savedMessage._id,
+        text: savedMessage.text,
+        sender: savedMessage.sender,
+        chatId: savedMessage.chatId,
+        chatType: savedMessage.chatType,
+        timestamp: savedMessage.timestamp
+      });
+
+    } catch (error) {
+      console.error('Error saving message:', error);
+      socket.emit('error_message', { message: 'Message send failed.' });
+    }
   });
 }
