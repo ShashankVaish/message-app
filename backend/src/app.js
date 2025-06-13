@@ -22,7 +22,7 @@ import userRouter from "./routes/User.routes.js"
 app.use("/api/v1/user",userRouter)
 
 
-const  {io,httpServer } = configureSocketIO(app)
+const  { io , httpServer } = configureSocketIO(app)
 
 
 export {  httpServer, io } // Export the app and httpServer for use in other modulesq
