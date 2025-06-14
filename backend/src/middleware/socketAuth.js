@@ -11,8 +11,15 @@ export const socketAuthMiddleware = async (socket, next) => {
       return next(new Error("Authentication token missing"));
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+    console.log("Decoded token:", decoded); // Add this for debugging
+
+    if (!decoded.id) {
+      console.log("Token payload missing id:", decoded);
+      return next(new Error("Invalid token format"));
+    }
+
+    const user = await User.findById(decoded.id); // Changed from decoded._id to decoded.id
 
     if (!user) {
       console.log("User not found for decoded ID:", decoded.id);
@@ -20,7 +27,7 @@ export const socketAuthMiddleware = async (socket, next) => {
     }
 
     socket.user = user; // Attach to socket
-    console.log("Authenticated user:", user.name);
+    console.log("Authenticated user:", user.username);
     next();
   } catch (err) {
     console.error("Socket auth error:", err.message);

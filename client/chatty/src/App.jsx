@@ -1,17 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-
-// Mock token storage (replace with localStorage in real app)
-let tokenStorage = null;
 import io from 'socket.io-client';
+
 // Token helper functions
-const getToken = () => tokenStorage;
-const setToken = (token) => { tokenStorage = token; };
-const removeToken = () => { tokenStorage = null; };
-const socket = io('http://localhost:3000', {
-  auth: {
-    token: localStorage.getItem("token") // or from cookies
-  }
-});
+const getToken = () => localStorage.getItem('token');
+const setToken = (token) => localStorage.setItem('token', token);
+const removeToken = () => localStorage.removeItem('token');
 
 // Mock data
 const mockUsers = [
@@ -37,8 +30,8 @@ const mockAuth = async (email, password, isLogin = true) => {
   throw new Error(isLogin ? 'Invalid credentials' : 'Registration failed');
 };
 
-// Beautiful Login Component
-const Login = ({ onLogin, onSwitchToSignup }) => {
+// Login Component
+function Login({ onLogin, onSwitchToSignup }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -64,17 +57,15 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
       }
 
       const data = await response.json();
-      console.log(data)
-      setToken(data.data.token); // Store JWT token in mock storage
-      localStorage.setItem('token', data.data.token); // Store JWT token
-      onLogin(); // Notify parent component
+      console.log(data);
+      setToken(data.data.token);
+      onLogin();
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-800 flex items-center justify-center p-4">
@@ -165,10 +156,10 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
       </div>
     </div>
   );
-};
+}
 
-// Beautiful Signup Component
-const Signup = ({ onSignup, onSwitchToLogin }) => {
+// Signup Component
+function Signup({ onSignup, onSwitchToLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -178,63 +169,61 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError('');
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-  if (password !== confirmPassword) {
-    setError('Passwords do not match');
-    setLoading(false);
-    return;
-  }
-
-  try {
-    const response = await fetch('http://localhost:3000/api/v1/user/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name,
-        username,
-        email,
-        password,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Signup failed');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
     }
 
-    const data = await response.json();
-    localStorage.setItem('token', data.token); // Store JWT token
-    onSignup(); // Callback after successful signup
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const response = await fetch('http://localhost:3000/api/v1/user/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          username,
+          email,
+          password,
+        }),
+      });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Signup failed');
+      }
 
+      const data = await response.json();
+      setToken(data.token);
+      onSignup();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-800 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black opacity-20"></div>
       
       {/* Floating Elements */}
-      <div className="absolute top-20 right-20 w-24 h-24 bg-white bg-opacity-10 rounded-full blur-xl animate-pulse"></div>
-      <div className="absolute bottom-20 left-20 w-28 h-28 bg-emerald-500 bg-opacity-10 rounded-full blur-xl animate-pulse delay-500"></div>
-      <div className="absolute top-1/3 right-10 w-20 h-20 bg-cyan-400 bg-opacity-10 rounded-full blur-xl animate-pulse delay-1000"></div>
+      <div className="absolute top-20 left-20 w-20 h-20 bg-white bg-opacity-10 rounded-full blur-xl animate-pulse"></div>
+      <div className="absolute bottom-20 right-20 w-32 h-32 bg-pink-500 bg-opacity-10 rounded-full blur-xl animate-pulse delay-700"></div>
+      <div className="absolute top-1/2 left-10 w-16 h-16 bg-yellow-400 bg-opacity-10 rounded-full blur-xl animate-pulse delay-300"></div>
       
       <div className="relative bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white border-opacity-20">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full mb-4">
-            <span className="text-2xl">🚀</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-4">
+            <span className="text-2xl">💬</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Join Us</h1>
-          <p className="text-emerald-100 text-sm">Create your account to start chatting</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+          <p className="text-purple-100 text-sm">Sign in to continue your conversations</p>
         </div>
         
         {error && (
@@ -243,39 +232,14 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
           </div>
         )}
 
-        <div className="space-y-5">
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">Full Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
-              placeholder="Enter your full name"
-              required
-            />
-          </div>
-
-          <div className="space-y-5">
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
-              placeholder="Enter your Username"
-              required
-            />
-          </div>
-
+        <div className="space-y-6">
           <div>
             <label className="block text-white text-sm font-medium mb-2">Email Address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
+              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm"
               placeholder="Enter your email"
               required
             />
@@ -287,20 +251,8 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
-              placeholder="Create a password (6+ characters)"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
-              placeholder="Confirm your password"
+              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm"
+              placeholder="Enter your password"
               required
             />
           </div>
@@ -308,25 +260,25 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 disabled:opacity-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:opacity-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
           >
             {loading ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Creating Account...
+                Signing up...
               </div>
             ) : (
-              'Create Account'
+              'Sign Up'
             )}
           </button>
         </div>
 
         <div className="text-center mt-8">
-          <p className="text-emerald-100 text-sm">
+          <p className="text-purple-100 text-sm">
             Already have an account?{' '}
             <button 
               onClick={onSwitchToLogin}
-              className="text-cyan-400 hover:text-cyan-300 font-medium underline transition-colors"
+              className="text-pink-400 hover:text-pink-300 font-medium underline transition-colors"
             >
               Sign in here
             </button>
@@ -334,79 +286,105 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
         </div>
       </div>
     </div>
-    </div>
   );
-};
+}
 
-// Chat Interface with Private/Group Chat Features
-const Chat = ({ onLogout }) => {
+// Chat Component
+function Chat({ onLogout }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [connected, setConnected] = useState(false);
   const [activeChat, setActiveChat] = useState(null);
-  const [chatType, setChatType] = useState('group'); // 'private' or 'group'
+  const [chatType, setChatType] = useState('private');
   const [showSidebar, setShowSidebar] = useState(true);
+  const [socket, setSocket] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const messagesEndRef = useRef(null);
 
-  // Initialize with welcome message
   useEffect(() => {
-    setMessages([
-      { id: 1, text: "Welcome to the chat! Select a user or group to start messaging.", sender: "system", timestamp: new Date() }
-    ]);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No authentication token found');
+      return;
+    }
+
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      const { id } = JSON.parse(jsonPayload);
+      setCurrentUserId(id);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+    }
+
+    const newSocket = io('http://localhost:3000', {
+      auth: {
+        token: token
+      }
+    });
+
+    newSocket.on('connect', () => {
+      console.log('Socket connected successfully');
+      setConnected(true);
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+      setConnected(false);
+    });
+
+    newSocket.on('new_message', (message) => {
+      console.log('Received new message:', message);
+      
+      if (message.sender.id !== currentUserId || 
+          (activeChat && message.chatId === activeChat.id)) {
+        setMessages(prev => {
+          const messageExists = prev.some(m => m.id === message.id);
+          if (messageExists) return prev;
+
+          return [...prev, {
+            id: message.id,
+            text: message.text,
+            sender: message.sender.id === currentUserId ? 'me' : 'other',
+            senderName: message.sender.name,
+            senderEmail: message.sender.email,
+            timestamp: new Date(message.timestamp),
+            chatId: message.chatId,
+            chatType: message.chatType
+          }];
+        });
+      }
+    });
+
+    newSocket.on('error_message', (error) => {
+      console.error('Socket error:', error);
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
   }, []);
 
-  // Mock socket connection
-  useEffect(() => {
-    const connectSocket = () => {
-      setConnected(true);
-      
-      const interval = setInterval(() => {
-        if (activeChat && Math.random() > 0.85) {
-          const mockMessages = [
-            "Hey there! 👋",
-            "How's your day going?",
-            "Just finished a great project!",
-            "Anyone up for a coffee break? ☕",
-            "This new feature looks amazing!",
-            "Great job on the presentation today!",
-            "Looking forward to the weekend 🎉"
-          ];
-          
-          const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
-          
-          setMessages(prev => [...prev, {
-            id: Date.now() + Math.random(),
-            text: mockMessages[Math.floor(Math.random() * mockMessages.length)],
-            sender: "other",
-            senderName: randomUser.name,
-            senderAvatar: randomUser.avatar,
-            timestamp: new Date()
-          }]);
-        }
-      }, 10000);
-
-      return () => {
-        clearInterval(interval);
-        setConnected(false);
-      };
-    };
-
-    const cleanup = connectSocket();
-    return cleanup;
-  }, [activeChat]);
-
+  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  
-
 
   const selectPrivateChat = (user) => {
     setActiveChat(user);
     setChatType('private');
     setMessages([
-      { id: 1, text: `Started a private conversation with ${user.name}`, sender: "system", timestamp: new Date() }
+      { 
+        id: Date.now(), 
+        text: `Started a private conversation with ${user.name}`, 
+        sender: "system", 
+        timestamp: new Date() 
+      }
     ]);
   };
 
@@ -414,193 +392,147 @@ const Chat = ({ onLogout }) => {
     setActiveChat(group);
     setChatType('group');
     setMessages([
-      { id: 1, text: `Joined ${group.name} group chat`, sender: "system", timestamp: new Date() }
+      { 
+        id: Date.now(), 
+        text: `Joined ${group.name} group chat`, 
+        sender: "system", 
+        timestamp: new Date() 
+      }
     ]);
   };
+
   const handleSendMessage = () => {
-  if (!newMessage.trim() || !activeChat) return;
-
-  const messageData = {
-    text: newMessage.trim(),
-    chatId: activeChat.id,               // ID of the user or group
-    chatType: chatType,                 // 'private' or 'group'
-    timestamp: new Date().toISOString() // Optional for client display
-  };
-
-  // Emit message to server via socket
-  socket.emit('send_message', messageData);
-
-  // Optimistically add message to local state
-  setMessages(prev => [
-    ...prev,
-    {
-      id: Date.now(),
-      text: messageData.text,
-      sender: 'me',
-      timestamp: new Date()
+    if (!newMessage.trim() || !activeChat || !socket || !connected || !currentUserId) {
+      console.log('Cannot send message:', { 
+        hasMessage: !!newMessage.trim(), 
+        hasActiveChat: !!activeChat, 
+        hasSocket: !!socket, 
+        isConnected: connected,
+        hasUserId: !!currentUserId
+      });
+      return;
     }
-  ]);
 
-  setNewMessage('');
-};
+    const messageData = {
+      text: newMessage.trim(),
+      chatId: activeChat.id,
+      chatType: chatType,
+      timestamp: new Date().toISOString()
+    };
+
+    // Emit message to server
+    socket.emit('send_message', messageData);
+
+    // Don't add message to state here - wait for server confirmation
+    // This prevents duplicate messages
+    setNewMessage('');
+  };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
-  }
-  // Handle socket message reception
+  };
 
   return (
     <div className="flex h-screen bg-gray-900">
       {/* Sidebar */}
-      <div className={`${showSidebar ? 'w-80' : 'w-0'} transition-all duration-300 bg-gray-800 border-r border-gray-700 flex flex-col overflow-hidden`}>
-        <div className="p-4 border-b border-gray-700">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-white">Chats</h2>
-            <div className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className="text-sm text-gray-400">{connected ? 'Online' : 'Offline'}</span>
-            </div>
-          </div>
-          
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setChatType('private')}
-              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                chatType === 'private' 
-                  ? 'bg-purple-600 text-white' 
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
+      <div className={`${showSidebar ? 'w-64' : 'w-0'} bg-gray-800 transition-all duration-300 overflow-hidden`}>
+        {/* Sidebar content */}
+        <div className="p-4">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-white">Chats</h2>
+            <button 
+              onClick={() => setShowSidebar(false)}
+              className="text-gray-400 hover:text-white lg:hidden"
             >
-              👥 Private
-            </button>
-            <button
-              onClick={() => setChatType('group')}
-              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                chatType === 'group' 
-                  ? 'bg-purple-600 text-white' 
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              💬 Groups
+              ✕
             </button>
           </div>
-        </div>
 
-        {/* Chat List */}
-        <div className="flex-1 overflow-y-auto">
-          {chatType === 'private' ? (
-            <div className="p-4 space-y-2">
-              <h3 className="text-sm font-medium text-gray-400 mb-3">DIRECT MESSAGES</h3>
+          {/* Private Chats */}
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Private Messages</h3>
+            <div className="space-y-2">
               {mockUsers.map(user => (
-                <div
+                <button
                   key={user.id}
                   onClick={() => selectPrivateChat(user)}
                   className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors ${
                     activeChat?.id === user.id ? 'bg-purple-600' : 'hover:bg-gray-700'
                   }`}
                 >
-                  <div className="relative">
-                    <span className="text-2xl">{user.avatar}</span>
-                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-gray-800 ${
-                      user.status === 'online' ? 'bg-green-500' : 
-                      user.status === 'away' ? 'bg-yellow-500' : 'bg-gray-500'
-                    }`}></div>
+                  <span className="text-xl mr-3">{user.avatar}</span>
+                  <div className="flex-1 text-left">
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-xs opacity-75">{user.status}</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium truncate">{user.name}</p>
-                    <p className="text-gray-400 text-xs capitalize">{user.status}</p>
-                  </div>
-                </div>
+                </button>
               ))}
             </div>
-          ) : (
-            <div className="p-4 space-y-2">
-              <h3 className="text-sm font-medium text-gray-400 mb-3">GROUP CHANNELS</h3>
+          </div>
+
+          {/* Group Chats */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Group Chats</h3>
+            <div className="space-y-2">
               {mockGroups.map(group => (
-                <div
+                <button
                   key={group.id}
                   onClick={() => selectGroupChat(group)}
-                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                    activeChat?.id === group.id ? 'bg-purple-600' : 'hover:bg-gray-700'
+                  className={`w-full flex items-center p-2 rounded-lg transition-colors ${
+                    activeChat?.id === group.id && activeChat?.type === 'group'
+                      ? 'bg-purple-600 text-white'
+                      : 'hover:bg-gray-700 text-gray-300'
                   }`}
                 >
-                  <span className="text-2xl">{group.avatar}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium truncate">{group.name}</p>
-                    <p className="text-gray-400 text-xs truncate">{group.members} members</p>
+                  <span className="text-xl mr-3">{group.avatar}</span>
+                  <div className="flex-1 text-left">
+                    <p className="font-medium">{group.name}</p>
+                    <p className="text-xs opacity-75">{group.members} members</p>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
-          )}
-        </div>
-
-        {/* User Profile */}
-        <div className="p-4 border-t border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <span className="text-2xl">👤</span>
-              <div>
-                <p className="text-white font-medium">You</p>
-                <p className="text-green-400 text-xs">● Online</p>
-              </div>
-            </div>
-            <button
-              onClick={onLogout}
-              className="text-gray-400 hover:text-red-400 transition-colors"
-              title="Logout"
-            >
-              🚪
-            </button>
           </div>
         </div>
       </div>
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="bg-gray-800 border-b border-gray-700 p-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setShowSidebar(!showSidebar)}
-              className="text-gray-400 hover:text-white transition-colors lg:hidden"
+        {/* Chat Header */}
+        <div className="bg-gray-800 p-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <button 
+              onClick={() => setShowSidebar(true)}
+              className="text-gray-400 hover:text-white mr-4 lg:hidden"
             >
               ☰
             </button>
             {activeChat ? (
-              <>
-                <span className="text-2xl">{activeChat.avatar}</span>
+              <div className="flex items-center">
+                <span className="text-2xl mr-3">{activeChat.avatar}</span>
                 <div>
-                  <h3 className="text-white font-medium">{activeChat.name}</h3>
-                  <p className="text-gray-400 text-xs">
-                    {chatType === 'private' 
-                      ? `${activeChat.status}` 
-                      : `${activeChat.members} members`
-                    }
+                  <h2 className="text-white font-semibold">{activeChat.name}</h2>
+                  <p className="text-sm text-gray-400">
+                    {chatType === 'private' ? 'Private Chat' : `${activeChat.members} members`}
                   </p>
                 </div>
-              </>
-            ) : (
-              <div>
-                <h3 className="text-white font-medium">Select a chat</h3>
-                <p className="text-gray-400 text-xs">Choose a user or group to start messaging</p>
               </div>
+            ) : (
+              <h2 className="text-white font-semibold">Select a chat to start messaging</h2>
             )}
           </div>
-          
-          {activeChat && (
-            <div className="flex items-center space-x-2">
-              <button className="text-gray-400 hover:text-white transition-colors p-2">📞</button>
-              <button className="text-gray-400 hover:text-white transition-colors p-2">📹</button>
-              <button className="text-gray-400 hover:text-white transition-colors p-2">ℹ️</button>
-            </div>
-          )}
+          <button
+            onClick={onLogout}
+            className="text-gray-400 hover:text-white px-3 py-1 rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            Logout
+          </button>
         </div>
 
-        {/* Messages */}
+        {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900">
           {messages.map((message) => (
             <div
@@ -609,7 +541,7 @@ const Chat = ({ onLogout }) => {
             >
               {message.sender === 'other' && (
                 <div className="mr-3 mt-1">
-                  <span className="text-xl">{message.senderAvatar}</span>
+                  <span className="text-xl">👤</span>
                 </div>
               )}
               <div
@@ -646,14 +578,14 @@ const Chat = ({ onLogout }) => {
                 onKeyPress={handleKeyPress}
                 placeholder={`Message ${activeChat.name}...`}
                 className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                disabled={!connected}
               />
-              <button className="text-gray-400 hover:text-white transition-colors">😊</button>
-              <button
+              <button 
                 onClick={handleSendMessage}
-                disabled={!newMessage.trim()}
+                disabled={!newMessage.trim() || !connected}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                ➤
+                {!connected ? '⌛' : '➤'}
               </button>
             </div>
           </div>
@@ -667,10 +599,10 @@ const Chat = ({ onLogout }) => {
       </div>
     </div>
   );
-};
+}
 
 // Main App Component
-const App = () => {
+function App() {
   const [currentView, setCurrentView] = useState('login');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -693,6 +625,7 @@ const App = () => {
   };
 
   const handleLogout = () => {
+    removeToken();
     setIsAuthenticated(false);
     setCurrentView('login');
   };
@@ -701,9 +634,6 @@ const App = () => {
     if (currentView === 'chat' && !getToken()) {
       return <Login onLogin={handleLogin} onSwitchToSignup={() => setCurrentView('signup')} />;
     }
-    // if(getToken()){
-    //   return <Chat onLogout={handleLogout} />;
-    // }
 
     switch (currentView) {
       case 'login':
@@ -722,6 +652,6 @@ const App = () => {
       {renderView()}
     </div>
   );
-};
+}
 
 export default App;
