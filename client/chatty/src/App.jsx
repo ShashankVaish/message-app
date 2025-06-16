@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, use } from 'react';
 import io from 'socket.io-client';
-
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ProfileUI from './pages/ProfileUi';
 // Token helper functions
 const getToken = () => localStorage.getItem('token');
 const setToken = (token) => localStorage.setItem('token', token);
 const removeToken = () => localStorage.removeItem('token');
+
 
 // Mock data
 const mockUsers = [
@@ -633,8 +635,11 @@ function Chat({ onLogout }) {
             onClick={onLogout}
             className="text-gray-400 hover:text-white px-3 py-1 rounded-lg hover:bg-gray-700 transition-colors"
           >
+
             Logout
           </button>
+          
+
         </div>
 
         {/* Messages Area */}
@@ -714,6 +719,7 @@ function Chat({ onLogout }) {
 function App() {
   const [currentView, setCurrentView] = useState('login');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
 
   useEffect(() => {
     const token = getToken();
@@ -757,9 +763,22 @@ function App() {
   };
 
   return (
+     <Router>
     <div className="App">
-      {renderView()}
+      
+      
+      <Routes>
+        
+        
+        <Route
+          path="/profile"
+          element={<ProfileUI />}
+        />
+
+      </Routes>
+    
     </div>
+    </Router>
   );
 }
 
