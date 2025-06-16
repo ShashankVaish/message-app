@@ -404,9 +404,53 @@ function Chat({ onLogout }) {
   useEffect(() => {
   console.log('Messages updated:', messages);
 }, [messages]);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  if (!socket || !activeChat) return;
+
+  // Emit request to server for message history
+  socket.emit('get_message_history', {
+    chatId: activeChat.id,
+    chatType: chatType,
+  });
+
+  // Receive message history from server
+  const handleHistory = (fetchedMessages) => {
+    console.log('History received:', fetchedMessages);
+
+    setMessages(
+      fetchedMessages.map((msg) => ({
+        id: msg._id,
+        text: msg.text,
+        sender: msg.sender.id,
+        senderName: msg.sender.name,
+        senderEmail: msg.sender.email,
+        chatId: msg.chatId,
+        chatType: msg.chatType,
+        timestamp: new Date(msg.timestamp),
+      }))
+    );
+  };
+
+  const handleError = (err) => {
+    console.error('Error loading history:', err.message);
+  };
+
+  socket.on('message_history', handleHistory);
+  socket.on('error_message', handleError);
+
+  // Clean up listeners on unmount or dependency change
+  return () => {
+    socket.off('message_history', handleHistory);
+    socket.off('error_message', handleError);
+  };
+}, [socket, activeChat]);
+// Only runs once when socket & activeChat are ready
+
+
+// runs once when socket & activeChat are both set
+
+
 
   const selectPrivateChat = (user) => {
     setActiveChat(user);

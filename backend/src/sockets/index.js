@@ -26,8 +26,9 @@ function configureSocketIO(app) {
 
     io.on('connection', (socket) => {
         console.log('A user connected:', socket.id);
-        messageController(io, socket);
         messagehistoryController(io, socket);
+        messageController(io, socket);
+        
         
         // Handle disconnection
         socket.on('disconnect', () => {
