@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, use } from 'react';
 import io from 'socket.io-client';
 
 // Token helper functions
@@ -298,7 +298,9 @@ function Chat({ onLogout }) {
   const [chatType, setChatType] = useState('private');
   const [showSidebar, setShowSidebar] = useState(true);
   const [socket, setSocket] = useState(null);
+  const currentUserIdRef = useRef(null);
   const [currentUserId, setCurrentUserId] = useState(null);
+
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -314,8 +316,12 @@ function Chat({ onLogout }) {
       const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
+      console.log('Decoded JWT payload:', jsonPayload);
       const { id } = JSON.parse(jsonPayload);
+      console.log(id)
       setCurrentUserId(id);
+      currentUserIdRef.current = id;
+      console.log('Current user ID set:', id);
     } catch (error) {
       console.error('Error decoding token:', error);
     }
@@ -330,16 +336,18 @@ function Chat({ onLogout }) {
       console.log('Socket connected successfully');
       setConnected(true);
     });
-
     newSocket.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
       setConnected(false);
     });
+    
+
 
     newSocket.on('new_message', (message) => {
       console.log('Received new message:', message);
+      console.log('Current user ID:', currentUserId);
       
-      if (message.sender.id !== currentUserId || 
+      if (message.sender.id !== currentUserIdRef || 
           (activeChat && message.chatId === activeChat.id)) {
         setMessages(prev => {
           const messageExists = prev.some(m => m.id === message.id);
@@ -348,7 +356,7 @@ function Chat({ onLogout }) {
           return [...prev, {
             id: message.id,
             text: message.text,
-            sender: message.sender.id === currentUserId ? 'me' : 'other',
+            sender: message.sender.id,
             senderName: message.sender.name,
             senderEmail: message.sender.email,
             timestamp: new Date(message.timestamp),
@@ -356,7 +364,10 @@ function Chat({ onLogout }) {
             chatType: message.chatType
           }];
         });
+        
+      
       }
+    
     });
 
     newSocket.on('error_message', (error) => {
@@ -368,9 +379,31 @@ function Chat({ onLogout }) {
     return () => {
       newSocket.disconnect();
     };
-  }, []);
+  
+  },[]); // ✅ depend on currentUserId
+//   useEffect(() => {
+//     if (!currentUserId) return; // 🚨 wait until it's set
+
+//   socket.on('new_message', (data) => {
+//     console.log("Received new message:", data);
+//     console.log("Current user ID:", currentUserId);
+
+//     setMessages((prev) => [...prev, data]);
+//   });
+
+//   return () => {
+//     socket.off('new_message');
+//   };
+  
+// }, [currentUserId]); // ✅ depend on currentUserId
+
 
   // Scroll to bottom when messages change
+  
+
+  useEffect(() => {
+  console.log('Messages updated:', messages);
+}, [messages]);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -422,6 +455,7 @@ function Chat({ onLogout }) {
 
     // Emit message to server
     socket.emit('send_message', messageData);
+    console.log('Message sent:', messageData);
 
     // Don't add message to state here - wait for server confirmation
     // This prevents duplicate messages
@@ -534,12 +568,15 @@ function Chat({ onLogout }) {
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900">
+          
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${message.sender === currentUserId ? 'justify-end' : 'justify-start'}`}
             >
-              {message.sender === 'other' && (
+              
+
+              {message.sender != currentUserId && (
                 <div className="mr-3 mt-1">
                   <span className="text-xl">👤</span>
                 </div>
@@ -553,12 +590,13 @@ function Chat({ onLogout }) {
                     : 'bg-gray-800 text-white'
                 } shadow-lg`}
               >
-                {message.sender === 'other' && message.senderName && (
+                {message.sender != currentUserId && message.senderName && (
                   <p className="text-xs text-purple-300 mb-1 font-medium">{message.senderName}</p>
                 )}
                 <p className="text-sm">{message.text}</p>
+                
                 <p className="text-xs mt-1 opacity-70">
-                  {message.timestamp.toLocaleTimeString()}
+                  {new Date (message.timestamp).toLocaleTimeString()}
                 </p>
               </div>
             </div>
