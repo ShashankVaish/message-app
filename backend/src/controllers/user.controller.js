@@ -42,7 +42,7 @@ const registerUser = asyncAwaitHandler(async (req, res) => {
 
 const loginUser = asyncAwaitHandler(async (req, res) => {
     const { email, password } = req.body;
-    console.log(typeof email, typeof password);
+    
     toString(email, password);
 
     // Check if user exists

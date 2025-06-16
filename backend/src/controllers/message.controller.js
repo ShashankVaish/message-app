@@ -63,7 +63,7 @@ export function messagehistoryController(io, socket) {
 
       console.log('Message history fetched successfully:', messages.length);
 
-      socket.emit('message_history', messages);
+      socket.emit('message_history', messages.reverse());
     } catch (error) {
       console.error('Error fetching message history:', error);
       socket.emit('error_message', { 

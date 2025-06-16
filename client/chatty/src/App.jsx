@@ -169,61 +169,64 @@ function Signup({ onSignup, onSwitchToLogin }) {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+  e.preventDefault();
+  setLoading(true);
+  setError('');
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
+  if (password !== confirmPassword) {
+    setError('Passwords do not match');
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/api/v1/user/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: name, // Backend expects this
+        email,
+        password
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Signup failed');
     }
 
-    try {
-      const response = await fetch('http://localhost:3000/api/v1/user/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          username,
-          email,
-          password,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Signup failed');
-      }
-
-      const data = await response.json();
-      setToken(data.token);
-      onSignup();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    // Save token if backend returns one (you can modify backend to return a token too)
+    if (data.token) {
+      localStorage.setItem('token', data.token);
     }
-  };
+
+    onSignup(); // Proceed to login/dashboard
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-800 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black opacity-20"></div>
       
       {/* Floating Elements */}
-      <div className="absolute top-20 left-20 w-20 h-20 bg-white bg-opacity-10 rounded-full blur-xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-20 w-32 h-32 bg-pink-500 bg-opacity-10 rounded-full blur-xl animate-pulse delay-700"></div>
-      <div className="absolute top-1/2 left-10 w-16 h-16 bg-yellow-400 bg-opacity-10 rounded-full blur-xl animate-pulse delay-300"></div>
+      <div className="absolute top-20 right-20 w-24 h-24 bg-white bg-opacity-10 rounded-full blur-xl animate-pulse"></div>
+      <div className="absolute bottom-20 left-20 w-28 h-28 bg-emerald-500 bg-opacity-10 rounded-full blur-xl animate-pulse delay-500"></div>
+      <div className="absolute top-1/3 right-10 w-20 h-20 bg-cyan-400 bg-opacity-10 rounded-full blur-xl animate-pulse delay-1000"></div>
       
       <div className="relative bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white border-opacity-20">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-4">
-            <span className="text-2xl">💬</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full mb-4">
+            <span className="text-2xl">🚀</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-purple-100 text-sm">Sign in to continue your conversations</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Join Us</h1>
+          <p className="text-emerald-100 text-sm">Create your account to start chatting</p>
         </div>
         
         {error && (
@@ -232,14 +235,26 @@ function Signup({ onSignup, onSwitchToLogin }) {
           </div>
         )}
 
-        <div className="space-y-6">
+        <div className="space-y-5">
+          <div>
+            <label className="block text-white text-sm font-medium mb-2">Full Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
+              placeholder="Enter your full name"
+              required
+            />
+          </div>
+
           <div>
             <label className="block text-white text-sm font-medium mb-2">Email Address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm"
+              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
               placeholder="Enter your email"
               required
             />
@@ -251,8 +266,20 @@ function Signup({ onSignup, onSwitchToLogin }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm"
-              placeholder="Enter your password"
+              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
+              placeholder="Create a password (6+ characters)"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-white text-sm font-medium mb-2">Confirm Password</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl text-white placeholder-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
+              placeholder="Confirm your password"
               required
             />
           </div>
@@ -260,25 +287,25 @@ function Signup({ onSignup, onSwitchToLogin }) {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:opacity-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
+            className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 disabled:opacity-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
           >
             {loading ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Signing up...
+                Creating Account...
               </div>
             ) : (
-              'Sign Up'
+              'Create Account'
             )}
           </button>
         </div>
 
         <div className="text-center mt-8">
-          <p className="text-purple-100 text-sm">
+          <p className="text-emerald-100 text-sm">
             Already have an account?{' '}
             <button 
               onClick={onSwitchToLogin}
-              className="text-pink-400 hover:text-pink-300 font-medium underline transition-colors"
+              className="text-cyan-400 hover:text-cyan-300 font-medium underline transition-colors"
             >
               Sign in here
             </button>
