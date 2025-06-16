@@ -6,7 +6,7 @@ import { createServer } from 'http';
 import dotenv from 'dotenv';
 import { socketAuthMiddleware } from '../middleware/socketAuth.js';
 
-import { messageController } from '../controllers/message.controller.js';
+import { messageController,messagehistoryController } from '../controllers/message.controller.js';
 // import {apiError } from '../middlewares/apiError.js';
 dotenv.config(); // Load environment variables
 // const httpServer = createServer(app);
@@ -27,6 +27,7 @@ function configureSocketIO(app) {
     io.on('connection', (socket) => {
         console.log('A user connected:', socket.id);
         messageController(io, socket);
+        messagehistoryController(io, socket);
         
         // Handle disconnection
         socket.on('disconnect', () => {

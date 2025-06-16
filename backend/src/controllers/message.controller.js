@@ -51,3 +51,25 @@ export function messageController(io, socket) {
     }
   });
 }
+export function messagehistoryController(io, socket) {
+  socket.on('get_message_history', async (data) => {
+    try {
+      const { chatId, chatType } = data;
+      console.log('Fetching message history for:', chatId, chatType);
+
+      const messages = await Message.find({ chatId, chatType })
+        .sort({ timestamp: -1 }) // Sort by timestamp descending
+        .limit(50); // Limit to the last 50 messages
+
+      console.log('Message history fetched successfully:', messages.length);
+
+      socket.emit('message_history', messages);
+    } catch (error) {
+      console.error('Error fetching message history:', error);
+      socket.emit('error_message', { 
+        message: 'Failed to fetch message history',
+        error: error.message 
+      });
+    }
+  });
+}
