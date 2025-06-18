@@ -16,6 +16,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    bio:{
+        type:String,
+        default:"Hey there! I am using this app",
+    },
+    Phone:{
+        type: String,
+        default: "",
+    },
+    location: {
+        type: String,
+        default: "",
+    },
     createdAt: {
         type: Date,
         default: Date.now,

@@ -765,17 +765,19 @@ function App() {
   return (
      <Router>
     <div className="App">
-      
+      {/* {renderView()} */}
       
       <Routes>
         
-        
-        <Route
-          path="/profile"
-          element={<ProfileUI />}
-        />
+        {/* {!isAuthenticated && ( */}
+          <Route
+            path="/profile"
+            element={<ProfileUI />}
+          />
+        {/* )} */}
 
       </Routes>
+        
     
     </div>
     </Router>

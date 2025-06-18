@@ -1,7 +1,7 @@
-import { asyncAwaitHandler } from "../utils/asyncAwaithandler.util";
+import { asyncAwaitHandler } from "../utils/asyncAwaithandler.util.js";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
-import { apiError } from "../utils/apiError.utils.js";
+import { apiError } from "../utils/apiError.util.js";
 
 
 const verifyUserJWT = asyncAwaitHandler(async (req, _, next) => {
@@ -13,14 +13,15 @@ const verifyUserJWT = asyncAwaitHandler(async (req, _, next) => {
     }
 
     const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+    console.log("Decoded token:", decodedToken); // Debugging line
 
-    let student = await User.findOne({ _id: decodedToken._id });
+    let student = await User.findOne({ _id: decodedToken.id });
 
     if (!student) {
       throw new apiError(401, "Expired Access Token");
     }
 
-    req.User = User;
+    req.User = student;
     next();
   } catch (error) {
     console.log(error);

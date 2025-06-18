@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   User, 
   Settings, 
@@ -46,10 +46,100 @@ const ProfileUI = () => {
     language: 'English'
   });
 
-  const [tempProfile, setTempProfile] = useState({ ...userProfile });
 
-  const handleSave = () => {
-    setUserProfile({ ...tempProfile });
+    const [tempProfile, setTempProfile] = useState({ ...userProfile });
+  const handleData = async ()=>{
+    try{
+    const response = await fetch('http://localhost:3000/api/v1/user/profile', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json   ',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      }
+    });
+    // console.log(object)
+    if (response.ok) {
+      const data = await response.json();
+      console.log('User profile data:', data.data);
+      
+
+      setUserProfile({
+        name: data.data.name ,
+        username: data.data.username ,
+        email: data.data.email ,
+        phone: data.data.phone || '',
+        location: data.data.location || '',
+        bio: data.data.bio || '',
+        avatar: data.data.avatar || '👤',
+        joinDate: new Date(data.data.createdAt).toLocaleDateString('en-US', {
+          month: 'long',
+          year: 'numeric'
+        }),
+
+      });
+      setTempProfile({
+        name: data.data.name ,
+        username: data.data.username ,
+        email: data.data.email ,
+        phone: data.data.phone || '',
+        location: data.data.location || '',
+        bio: data.data.bio || '',
+        joinDate: new Date(data.data.createdAt).toLocaleDateString('en-US', {
+          month: 'long',
+          year: 'numeric'
+        })
+    });
+    
+}
+    
+
+
+
+  }
+    catch (error) {
+      console.error('Error fetching user profile:', error);     
+    }
+  };
+  useEffect(() => {
+    handleData();       
+    }, []);
+
+  const handleSave = async () => {
+    const updatedProfile = await fetch('http://localhost:3000/api/v1/user/update', {
+      method: 'PUT',    
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+            
+        },      
+        body: JSON.stringify({
+            name: tempProfile.name,
+            username: tempProfile.username,
+            email: tempProfile.email,
+
+            phone: tempProfile.phone,
+            location: tempProfile.location, 
+            bio: tempProfile.bio,
+            avatar: tempProfile.avatar,
+
+            status: tempProfile.status,
+        })
+    });
+    if (!updatedProfile.ok) {
+      const errorData = await updatedProfile.json();    
+        console.error('Error updating profile:', errorData.message);
+        return;
+
+    }
+    const data = await updatedProfile.json();
+    console.log('Profile updated successfully:', data);
+    // Update the userProfile state with the new data
+    setTempProfile({ ...tempProfile, ...data.data });
+
+    // Set the userProfile state to the updated profile
+    setUserProfile({ ...tempProfile, ...data.data });
+    // setUserProfile({ ...tempProfile });
+    // Reset editing state
     setIsEditing(false);
   };
 

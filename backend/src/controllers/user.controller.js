@@ -71,6 +71,63 @@ const loginUser = asyncAwaitHandler(async (req, res) => {
         "token": token
     }, "User logged in successfully"));
 });
+const profileUser = asyncAwaitHandler(async (req, res) => {
+    console.log(req.User)
+    const user = req.User; // User is attached by auth middleware
+    if (!user) {
+        throw new apiError(401, "Unauthorized");
+    }
+
+    const userData = {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+    };
+
+    return res.status(200)
+    .json(new apiResponse(200, userData, "User profile fetched successfully"));
+}
+);
+
+const updateUser = asyncAwaitHandler(async (req, res) => {
+    // Assuming req.user is set by the auth middleware
+    if (!req.User) {
+        throw new apiError(401, "Unauthorized");
+    }
+    console.log(req.User);
+
+  const userId = req.User.id; // user is attached by auth middleware
+  const { username, password,bio,location,phone } = req.body;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new apiError(404, "User not found");
+  }
+
+  if (username) user.username = username;
+  if (bio) user.bio = bio;
+    if (location) user.location = location;
+  if (phone) user.Phone = phone;
+    // Only hash password if it is provided
+  if (password) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+  }
+
+  await user.save();
+
+  const updatedUserData = {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+  };
+
+  return res.status(200).json(
+    new apiResponse(200, updatedUserData, "User updated successfully")
+  );
+});
 
 
-export{ registerUser, loginUser };
+
+export{ registerUser, loginUser , profileUser,updateUser,
+};
