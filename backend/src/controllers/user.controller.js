@@ -82,6 +82,14 @@ const profileUser = asyncAwaitHandler(async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        bio: user.bio,
+        location: user.location,
+        phone: user.Phone,
+        createdAt: user.createdAt,
+        // Add any other fields you want to return
+        // e.g., profile picture URL, etc.
+        // profilePicture: user.profilePicture,
+        
     };
 
     return res.status(200)
