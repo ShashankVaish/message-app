@@ -319,7 +319,7 @@ function Signup({ onSignup, onSwitchToLogin }) {
 }
 
 // Chat Component
-function Chat({ onLogout }) {
+function Chat({ onLogout,onprofile }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [connected, setConnected] = useState(false);
@@ -638,6 +638,14 @@ function Chat({ onLogout }) {
 
             Logout
           </button>
+          <button
+            onClick={onprofile}
+            
+            className="text-gray-400 hover:text-white px-3 py-1 rounded-lg hover:bg-gray-700 transition-colors"
+          >
+
+            profile
+          </button>
           
 
         </div>
@@ -744,6 +752,10 @@ function App() {
     setIsAuthenticated(false);
     setCurrentView('login');
   };
+  const handleprofile=()=>{
+    setIsAuthenticated(true);
+    setCurrentView('profile');
+  }
 
   const renderView = () => {
     if (currentView === 'chat' && !getToken()) {
@@ -756,31 +768,22 @@ function App() {
       case 'signup':
         return <Signup onSignup={handleSignup} onSwitchToLogin={() => setCurrentView('login')} />;
       case 'chat':
-        return <Chat onLogout={handleLogout} />;
+        return <Chat onLogout={handleLogout} onprofile={handleprofile} />;
+      case 'profile':
+        return <ProfileUI onprofile={handleprofile} />;
       default:
         return <Login onLogin={handleLogin} onSwitchToSignup={() => setCurrentView('signup')} />;
     }
   };
 
   return (
-     <Router>
     <div className="App">
-      {/* {renderView()} */}
-      
-      <Routes>
-        
-        {/* {!isAuthenticated && ( */}
-          <Route
-            path="/profile"
-            element={<ProfileUI />}
-          />
-        {/* )} */}
-
-      </Routes>
-        
+      {renderView()}
+     
     
+      
+ 
     </div>
-    </Router>
   );
 }
 
