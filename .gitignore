@@ -1,7 +1,7 @@
 # Node.js dependencies
 backend/node_modules/
-client/chatty/src/config/config.js
-
+# client/chatty/src/config/config.js
+chatty/.env
 backend/package-lock.json
 package-lock.json
 # Environment variables
