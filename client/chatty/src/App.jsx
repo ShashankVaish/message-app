@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, use } from 'react';
 import io from 'socket.io-client';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ProfileUI from './pages/ProfileUi';
+import config from './config/config.js';
 // Token helper functions
 const getToken = () => localStorage.getItem('token');
 const setToken = (token) => localStorage.setItem('token', token);
@@ -45,7 +46,7 @@ function Login({ onLogin, onSwitchToSignup }) {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/v1/user/login', {
+      const response = await fetch(`${config.backend}/api/v1/user/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +63,9 @@ function Login({ onLogin, onSwitchToSignup }) {
       console.log(data);
       setToken(data.data.token);
       onLogin();
-    } catch (err) {
+      window.location.reload(); // Reload to apply token changes
+    } catch (error) {
+      console.log(error)
       setError(err.message);
     } finally {
       setLoading(false);
@@ -182,7 +185,7 @@ function Signup({ onSignup, onSwitchToLogin }) {
   }
 
   try {
-    const response = await fetch('http://localhost:3000/api/v1/user/register', {
+    const response = await fetch(`${config.backend}/api/v1/user/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -207,7 +210,7 @@ function Signup({ onSignup, onSwitchToLogin }) {
 
     onSignup(); // Proceed to login/dashboard
   } catch (err) {
-    setError(err.message);
+    setError(err);
   } finally {
     setLoading(false);
   }
@@ -327,6 +330,7 @@ function Chat({ onLogout,onprofile }) {
   const [chatType, setChatType] = useState('private');
   const [showSidebar, setShowSidebar] = useState(true);
   const [socket, setSocket] = useState(null);
+
   const currentUserIdRef = useRef(null);
   const [currentUserId, setCurrentUserId] = useState(null);
 
@@ -355,7 +359,7 @@ function Chat({ onLogout,onprofile }) {
       console.error('Error decoding token:', error);
     }
 
-    const newSocket = io('http://localhost:3000', {
+    const newSocket = io(`${config.backend}`, {
       auth: {
         token: token
       }
@@ -430,8 +434,10 @@ function Chat({ onLogout,onprofile }) {
   // Scroll to bottom when messages change
   
 
-  useEffect(() => {
-  console.log('Messages updated:', messages);
+    useEffect(() => {
+  if (messagesEndRef.current) {
+    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  }
 }, [messages]);
 
   useEffect(() => {
@@ -442,6 +448,8 @@ function Chat({ onLogout,onprofile }) {
     chatId: activeChat.id,
     chatType: chatType,
   });
+
+
 
   // Receive message history from server
   const handleHistory = (fetchedMessages) => {

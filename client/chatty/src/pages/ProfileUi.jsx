@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import config from "../config/config.js"
 import { 
   User, 
   Settings, 
@@ -20,8 +21,12 @@ import {
   Upload,
   Check
 } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
+import App from '../App';
 const ProfileUI = () => {
+
+    
+
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +55,7 @@ const ProfileUI = () => {
     const [tempProfile, setTempProfile] = useState({ ...userProfile });
   const handleData = async ()=>{
     try{
-    const response = await fetch('http://localhost:3000/api/v1/user/profile', {
+    const response = await fetch(`${config.backend}/api/v1/user/profile`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json   ',
@@ -105,7 +110,7 @@ const ProfileUI = () => {
     }, []);
 
   const handleSave = async () => {
-    const updatedProfile = await fetch('http://localhost:3000/api/v1/user/update', {
+    const updatedProfile = await fetch(`${config.backend}/api/v1/user/update`, {
       method: 'PUT',    
         headers: {
         'Content-Type': 'application/json',
@@ -190,6 +195,19 @@ const ProfileUI = () => {
           {isEditing ? 'Cancel' : 'Edit Profile'}
         </button>
       </div>
+      <div className="mb-8 flex items-center justify-between">
+  <div>
+    <h1 className="text-3xl font-bold mb-2">Account Settings</h1>
+    <p className="text-gray-400">Manage your profile and preferences</p>
+  </div>
+  <button
+    onClick={() =>  Navigate('/chat')}
+    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium"
+  >
+    ← Back to Chat
+  </button>
+</div>
+
 
       {/* Avatar Section */}
       <div className="flex items-center space-x-6">
