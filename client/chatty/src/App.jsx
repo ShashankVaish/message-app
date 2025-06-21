@@ -66,7 +66,7 @@ function Login({ onLogin, onSwitchToSignup }) {
       window.location.reload(); // Reload to apply token changes
     } catch (error) {
       console.log(error)
-      setError(err.message);
+      setError(err);
     } finally {
       setLoading(false);
     }
