@@ -60,12 +60,12 @@ function Login({ onLogin, onSwitchToSignup }) {
       }
 
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
       setToken(data.data.token);
       onLogin();
       window.location.reload(); // Reload to apply token changes
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       setError(err);
     } finally {
       setLoading(false);
@@ -349,12 +349,12 @@ function Chat({ onLogout,onprofile }) {
       const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
-      console.log('Decoded JWT payload:', jsonPayload);
+      // console.log('Decoded JWT payload:', jsonPayload);
       const { id } = JSON.parse(jsonPayload);
-      console.log(id)
+      // console.log(id)
       setCurrentUserId(id);
       currentUserIdRef.current = id;
-      console.log('Current user ID set:', id);
+      // console.log('Current user ID set:', id);
     } catch (error) {
       console.error('Error decoding token:', error);
     }
@@ -413,26 +413,7 @@ function Chat({ onLogout,onprofile }) {
       newSocket.disconnect();
     };
   
-  },[]); // ✅ depend on currentUserId
-//   useEffect(() => {
-//     if (!currentUserId) return; // 🚨 wait until it's set
-
-//   socket.on('new_message', (data) => {
-//     console.log("Received new message:", data);
-//     console.log("Current user ID:", currentUserId);
-
-//     setMessages((prev) => [...prev, data]);
-//   });
-
-//   return () => {
-//     socket.off('new_message');
-//   };
-  
-// }, [currentUserId]); // ✅ depend on currentUserId
-
-
-  // Scroll to bottom when messages change
-  
+  },[]); 
 
     useEffect(() => {
   if (messagesEndRef.current) {
@@ -482,10 +463,6 @@ function Chat({ onLogout,onprofile }) {
     socket.off('error_message', handleError);
   };
 }, [socket, activeChat]);
-// Only runs once when socket & activeChat are ready
-
-
-// runs once when socket & activeChat are both set
 
 
 
