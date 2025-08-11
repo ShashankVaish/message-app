@@ -1,6 +1,7 @@
 import {  httpServer,io} from './app.js';
 import {connectDB} from './config/db.js';
 import dotenv from 'dotenv';  
+import path from 'path';
 dotenv.config()// Load environment variables
 
 
