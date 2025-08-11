@@ -2,7 +2,8 @@
 backend/node_modules/
 # client/chatty/src/config/config.js
 chatty/.env
-
+backend/package-lock.json
+client/package-lock.json
 
 # Environment variables
 .env
