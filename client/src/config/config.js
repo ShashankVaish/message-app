@@ -1,5 +1,5 @@
 const config = {
-    backend: 'https://message-app-t658.onrender.com' || 'http://localhost:3000',
+    backend: 'http://localhost:3000'||'https://message-app-t658.onrender.com'  ,
 }
 export default config;
 export const getBackendUrl = () => {    
