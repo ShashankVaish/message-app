@@ -22,6 +22,7 @@ import {
   Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import DarkModeToggle from '../components/DarkModeToggle';
 import App from '../App';
 const ProfileUI = () => {
 
@@ -173,8 +174,10 @@ const ProfileUI = () => {
   const TabButton = ({ id, label, icon: Icon, active, onClick }) => (
     <button
       onClick={() => onClick(id)}
-      className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
-        active ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'
+      className={`flex items-center justify-center sm:justify-start px-4 py-2 rounded-lg transition-colors ${
+        active 
+          ? 'bg-blue-600 text-white' 
+          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
       }`}
     >
       <Icon className="w-4 h-4 mr-2" />
@@ -210,9 +213,9 @@ const ProfileUI = () => {
 
 
       {/* Avatar Section */}
-      <div className="flex items-center space-x-6">
+      <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
         <div className="relative">
-          <div className="w-24 h-24 rounded-full bg-gray-600 flex items-center justify-center text-4xl">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-3xl sm:text-4xl text-white">
             {userProfile.avatar}
           </div>
           <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-4 border-gray-800 ${getStatusColor(userProfile.status)}`}></div>
@@ -229,14 +232,14 @@ const ProfileUI = () => {
                 type="text"
                 value={tempProfile.name}
                 onChange={(e) => setTempProfile({...tempProfile, name: e.target.value})}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 placeholder="Display Name"
               />
               <input
                 type="text"
                 value={tempProfile.username}
                 onChange={(e) => setTempProfile({...tempProfile, username: e.target.value})}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 placeholder="Username"
               />
             </div>
@@ -256,16 +259,16 @@ const ProfileUI = () => {
           <textarea
             value={tempProfile.bio}
             onChange={(e) => setTempProfile({...tempProfile, bio: e.target.value})}
-            className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 h-24 resize-none"
+            className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors h-24 resize-none"
             placeholder="Tell us about yourself..."
           />
         ) : (
-          <p className="text-gray-300 bg-gray-700 rounded-lg p-3">{userProfile.bio}</p>
+          <p className="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg p-3">{userProfile.bio}</p>
         )}
       </div>
 
       {/* Contact Information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium mb-2">
             <Mail className="w-4 h-4 inline mr-1" />
@@ -279,7 +282,7 @@ const ProfileUI = () => {
               className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
             />
           ) : (
-            <p className="text-gray-300 bg-gray-700 rounded-lg p-3">{userProfile.email}</p>
+            <p className="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg p-3">{userProfile.email}</p>
           )}
         </div>
         <div>
@@ -295,7 +298,7 @@ const ProfileUI = () => {
               className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
             />
           ) : (
-            <p className="text-gray-300 bg-gray-700 rounded-lg p-3">{userProfile.phone}</p>
+            <p className="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg p-3">{userProfile.phone}</p>
           )}
         </div>
         <div>
@@ -311,7 +314,7 @@ const ProfileUI = () => {
               className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
             />
           ) : (
-            <p className="text-gray-300 bg-gray-700 rounded-lg p-3">{userProfile.location}</p>
+            <p className="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg p-3">{userProfile.location}</p>
           )}
         </div>
         <div>
@@ -319,7 +322,7 @@ const ProfileUI = () => {
             <Calendar className="w-4 h-4 inline mr-1" />
             Joined
           </label>
-          <p className="text-gray-300 bg-gray-700 rounded-lg p-3">{userProfile.joinDate}</p>
+          <p className="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg p-3">{userProfile.joinDate}</p>
         </div>
       </div>
 
@@ -333,7 +336,9 @@ const ProfileUI = () => {
                 key={status}
                 onClick={() => setTempProfile({...tempProfile, status})}
                 className={`flex items-center px-3 py-2 rounded-lg transition-colors ${
-                  tempProfile.status === status ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+                  tempProfile.status === status 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white'
                 }`}
               >
                 <div className={`w-3 h-3 rounded-full mr-2 ${getStatusColor(status)}`}></div>
@@ -371,7 +376,7 @@ const ProfileUI = () => {
       <h2 className="text-2xl font-bold">Settings</h2>
 
       {/* Notifications */}
-      <div className="bg-gray-800 rounded-lg p-4">
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold mb-4 flex items-center">
           <Bell className="w-5 h-5 mr-2" />
           Notifications
@@ -379,7 +384,7 @@ const ProfileUI = () => {
         <div className="space-y-3">
           {Object.entries(notifications).map(([key, value]) => (
             <div key={key} className="flex items-center justify-between">
-              <span className="text-gray-300 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+              <span className="text-gray-600 dark:text-gray-300 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
               <button
                 onClick={() => handleNotificationChange(key)}
                 className={`w-12 h-6 rounded-full transition-colors ${
@@ -396,27 +401,27 @@ const ProfileUI = () => {
       </div>
 
       {/* Privacy */}
-      <div className="bg-gray-800 rounded-lg p-4">
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold mb-4 flex items-center">
           <Shield className="w-5 h-5 mr-2" />
           Privacy & Security
         </h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-gray-300">Two-Factor Authentication</span>
+            <span className="text-gray-600 dark:text-gray-300">Two-Factor Authentication</span>
             <button className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm transition-colors">
               <Check className="w-4 h-4 inline mr-1" />
               Enabled
             </button>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-300">Show Online Status</span>
+            <span className="text-gray-600 dark:text-gray-300">Show Online Status</span>
             <button className="w-12 h-6 rounded-full bg-blue-600">
               <div className="w-5 h-5 bg-white rounded-full translate-x-6"></div>
             </button>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-300">Read Receipts</span>
+            <span className="text-gray-600 dark:text-gray-300">Read Receipts</span>
             <button className="w-12 h-6 rounded-full bg-gray-600">
               <div className="w-5 h-5 bg-white rounded-full translate-x-1"></div>
             </button>
@@ -425,23 +430,23 @@ const ProfileUI = () => {
       </div>
 
       {/* Appearance */}
-      <div className="bg-gray-800 rounded-lg p-4">
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold mb-4 flex items-center">
           <Moon className="w-5 h-5 mr-2" />
           Appearance
         </h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-gray-300">Theme</span>
-            <select className="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-white focus:outline-none focus:border-blue-500">
+            <span className="text-gray-600 dark:text-gray-300">Theme</span>
+            <select className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-3 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
               <option value="dark">Dark</option>
               <option value="light">Light</option>
               <option value="system">System</option>
             </select>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-300">Language</span>
-            <select className="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-white focus:outline-none focus:border-blue-500">
+            <span className="text-gray-600 dark:text-gray-300">Language</span>
+            <select className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-3 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
               <option value="en">English</option>
               <option value="es">Spanish</option>
               <option value="fr">French</option>
@@ -452,7 +457,7 @@ const ProfileUI = () => {
       </div>
 
       {/* Password Change */}
-      <div className="bg-gray-800 rounded-lg p-4">
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold mb-4 flex items-center">
           <Lock className="w-5 h-5 mr-2" />
           Change Password
@@ -490,16 +495,19 @@ const ProfileUI = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-4xl mx-auto p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors">
+      <div className="max-w-4xl mx-auto p-4 sm:p-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Account Settings</h1>
-          <p className="text-gray-400">Manage your profile and preferences</p>
+        <div className="mb-6 sm:mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Account Settings</h1>
+            <p className="text-gray-500 dark:text-gray-400">Manage your profile and preferences</p>
+          </div>
+          <DarkModeToggle />
         </div>
 
         {/* Tabs */}
-        <div className="flex space-x-2 mb-8 bg-gray-800 p-2 rounded-lg">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mb-6 sm:mb-8 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <TabButton
             id="profile"
             label="Profile"
@@ -517,7 +525,7 @@ const ProfileUI = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-gray-800 rounded-lg p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           {activeTab === 'profile' && <ProfileTab />}
           {activeTab === 'settings' && <SettingsTab />}
         </div>

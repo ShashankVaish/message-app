@@ -11,6 +11,7 @@ const messageSchema = new mongoose.Schema({
   chatType: { type: String, enum: ['private', 'group'], default: 'private' },
   chatId: { type: String },
   timestamp: { type: Date, default: Date.now },
+  readby:[{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 });
 
 export const Message = mongoose.model('Message', messageSchema);

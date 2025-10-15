@@ -54,6 +54,8 @@ export function messageController(io, socket) {
 export function messagehistoryController(io, socket) {
   socket.on('get_message_history', async (data) => {
     try {
+      
+      console.log("the is data :- ",data)
       const { chatId, chatType } = data;
       console.log('Fetching message history for:', chatId, chatType);
 
@@ -72,4 +74,19 @@ export function messagehistoryController(io, socket) {
       });
     }
   });
+
 }
+
+// export function markAsReadMessage(io,socket){
+//   socket.on('read_message_by_user',async (data)=>{
+//     console.log(data)
+
+//     try {
+      
+
+      
+//     } catch (error) {
+      
+//     }
+//   })
+// }
