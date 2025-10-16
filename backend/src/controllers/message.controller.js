@@ -100,13 +100,14 @@ export function markAsUnReadMessage(io,socket){
         const {chatId,chatType}=data;
         const messages = await Message.find({chatId,chatType,readby:{$ne:userdetails._id}})
         console.log("unread messages ",messages)
-        res.send(201).json(
-          new apiResponse(201,{
-            "messages":messages
-          })
-
-
-        )
+        
+        
+        socket.emit('unread_messages_response', {
+          chatId,
+          chatType,
+          messages: messages
+        })
+        
 
       } catch (error) {
         console.error('error fetching unread message :',error)
