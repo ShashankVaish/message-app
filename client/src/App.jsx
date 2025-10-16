@@ -433,6 +433,9 @@ function Chat({ onLogout,onprofile }) {
   const [currentUserId, setCurrentUserId] = useState(null);
 
   const messagesEndRef = useRef(null);
+  
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, chat: null });
 
   // Handle window resize for responsive design
   useEffect(() => {
@@ -650,6 +653,70 @@ function Chat({ onLogout,onprofile }) {
     }
   };
 
+  // Context menu handlers
+  const handleRightClick = (e, chat) => {
+    // Only show context menu for groups
+    if (!chat.members) return;
+    
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      chat: chat
+    });
+  };
+
+  const hideContextMenu = () => {
+    setContextMenu({ visible: false, x: 0, y: 0, chat: null });
+  };
+
+  const handleSummarize = () => {
+    if (!contextMenu.chat || !socket || !connected) {
+      console.log('Cannot summarize: missing chat, socket, or connection');
+      return;
+    }
+
+    console.log('Summarizing chat:', contextMenu.chat.name);
+    
+    // Emit the read_message_by_user socket event
+    socket.emit('read_message_by_user', {
+      chatId: contextMenu.chat.id,
+      chatType: 'group'
+    });
+
+    hideContextMenu();
+  };
+
+  // Socket listener for read_message_by_user response
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUnreadMessages = (data) => {
+      console.log('Received unread messages for summarization:', data);
+      // Here you can process the unread messages for summarization
+      // You might want to send them to an AI service or display them
+    };
+
+    socket.on('unread_messages_response', handleUnreadMessages);
+
+    return () => {
+      socket.off('unread_messages_response', handleUnreadMessages);
+    };
+  }, [socket]);
+
+  // Hide context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (contextMenu.visible) {
+        hideContextMenu();
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [contextMenu.visible]);
+
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Sidebar */}
@@ -718,6 +785,7 @@ function Chat({ onLogout,onprofile }) {
               <button
                 key={chat.id}
                 onClick={() => selectChat(chat)}
+                onContextMenu={(e) => handleRightClick(e, chat)}
                 className={`w-full flex items-center p-3 rounded-xl transition-all duration-200 mb-1 ${
                   activeChat?.id === chat.id 
                     ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700' 
@@ -772,6 +840,27 @@ function Chat({ onLogout,onprofile }) {
           className="absolute inset-0 bg-black bg-opacity-50 z-40"
           onClick={() => setShowSidebar(false)}
         />
+      )}
+
+      {/* Context Menu */}
+      {contextMenu.visible && (
+        <div
+          className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-2 z-50 min-w-[150px]"
+          style={{
+            left: contextMenu.x,
+            top: contextMenu.y,
+          }}
+        >
+          <button
+            onClick={handleSummarize}
+            className="w-full px-4 py-2 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Summarize
+          </button>
+        </div>
       )}
 
       {/* Main Chat Area */}

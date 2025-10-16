@@ -1,5 +1,8 @@
 // controllers/messageController.js
+import { verifyUserJWT } from "../middleware/auth.middleware.js";
 import { Message } from "../models/message.model.js";
+import { apiResponse } from "../utils/apiResponse.uitil.js";
+import { asyncAwaitHandler } from "../utils/asyncAwaithandler.util.js";
 
 export function messageController(io, socket) {
   // Socket must have user info, commonly attached in middleware
@@ -51,21 +54,32 @@ export function messageController(io, socket) {
     }
   });
 }
+
 export function messagehistoryController(io, socket) {
-  socket.on('get_message_history', async (data) => {
+  socket.on('get_message_history', asyncAwaitHandler(async (data)=>{
     try {
-      
-      console.log("the is data :- ",data)
+      // console.log("the io data ",io)
+      // console.log("the is data :- ",data)
+      const user = socket.user;
+      console.log("user",user)
       const { chatId, chatType } = data;
+      // const userdetails = req.User
       console.log('Fetching message history for:', chatId, chatType);
 
       const messages = await Message.find({ chatId, chatType })
         .sort({ timestamp: -1 }) // Sort by timestamp descending
         .limit(50); // Limit to the last 50 messages
+      
 
       console.log('Message history fetched successfully:', messages.length);
 
       socket.emit('message_history', messages.reverse());
+      await  Message.updateMany({
+        chatId,readby:{$ne:user._id}},{
+          $push:{readby:user._id}
+        
+      })
+
     } catch (error) {
       console.error('Error fetching message history:', error);
       socket.emit('error_message', { 
@@ -73,20 +87,34 @@ export function messagehistoryController(io, socket) {
         error: error.message 
       });
     }
-  });
+  }));
 
 }
 
-// export function markAsReadMessage(io,socket){
-//   socket.on('read_message_by_user',async (data)=>{
-//     console.log(data)
+export function markAsUnReadMessage(io,socket){
+  socket.on('read_message_by_user',asyncAwaitHandler(
+    async (data)=>{
+      const userdetails = socket.user
+      console.log(userdetails)
+      try {
+        const {chatId,chatType}=data;
+        const messages = await Message.find({chatId,chatType,readby:{$ne:userdetails._id}})
+        console.log("unread messages ",messages)
+        
+        
+        socket.emit('unread_messages_response', {
+          chatId,
+          chatType,
+          messages: messages
+        })
+        
 
-//     try {
-      
-
-      
-//     } catch (error) {
-      
-//     }
-//   })
-// }
+      } catch (error) {
+        console.error('error fetching unread message :',error)
+        socket.emit('error_message',{
+          message:"failed to fetch the unread message ",
+          error:error.message
+        }) 
+      }
+    }
+  ))}
